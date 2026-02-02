@@ -105,7 +105,7 @@ cat("\n\n=========================================================\n"); cat("  A
   print(tabela_comp_size); write.csv(tabela_comp_size, paste0("analysis_results/",  "table_model_comparison_size_",  ".csv"), row.names = FALSE)
   cat("\n--- 1.2. DHARMa Residual Diagnostics ---\n")
   residuos_gamma <- simulateResiduals(fittedModel = modelo_size_gamma); tabela_diag_gamma <- criar_tabela_diagnostico_dharma_qq(residuos_gamma)
-  png(paste0("analysis_results/",  "/plot_diagnostics_size_GAMMA_",  ".png"), width = 3000, height = 1000, res = 300);  par(mfrow = c(1, 2), mar = c(4, 4, 3, 1) + 0.1, oma = c(0, 0, 1, 0), cex = 1); plotQQunif(residuos_gamma, main = "A) QQ Plot - Size (Gamma)", testUniformity = FALSE, testDispersion = FALSE, testOutliers = FALSE); plotResiduals(residuos_gamma, main = "B) Residuals vs. Predicted - Size (Gamma)"); dev.off()
+  png(paste0("analysis_results/",  "plot_diagnostics_size_GAMMA_",  ".png"), width = 3000, height = 1000, res = 300);  par(mfrow = c(1, 2), mar = c(4, 4, 3, 1) + 0.1, oma = c(0, 0, 1, 0), cex = 1); plotQQunif(residuos_gamma, main = "A) QQ Plot - Size (Gamma)", testUniformity = FALSE, testDispersion = FALSE, testOutliers = FALSE); plotResiduals(residuos_gamma, main = "B) Residuals vs. Predicted - Size (Gamma)"); dev.off()
   cat("Diagnostics for Gamma Model:\n"); print(tabela_diag_gamma); write.csv(tabela_diag_gamma, paste0("analysis_results/",  "table_diagnostics_dharma_size_GAMMA_",  ".csv"), row.names = FALSE)
   residuos_gaussiano <- simulateResiduals(fittedModel = modelo_size_gaussiano); tabela_diag_gaussiano <- criar_tabela_diagnostico_dharma_qq(residuos_gaussiano)
   png(paste0("analysis_results/",  "/plot_diagnostics_size_GAUSSIAN_",  ".png"), width = 3000, height = 1000, res = 300); par(mfrow = c(1, 2), mar = c(4, 4, 3, 1) + 0.1, oma = c(0, 0, 1, 0), cex = 1); plotQQunif(residuos_gaussiano, main = "A) QQ Plot - Size (Gaussian)", testUniformity = FALSE, testDispersion = FALSE, testOutliers = FALSE); plotResiduals(residuos_gaussiano, main = "B) Residuals vs. Predicted - Size (Gaussian)"); dev.off()
@@ -142,7 +142,7 @@ cat("\n\n=========================================================\n"); cat("  A
   cat("\nAttempt 1: Full Negative Binomial GLMM...\n", "equacao: ", equacao_conc_1, "\n", "\n")
   modelo_conc_tentativa1 <- tryCatch({glmmTMB(concentracao_real ~ wave * grupo_analise_dep + (1 | subjectid), data = nanosight_intersect_ev_pequena_long, family = nbinom2(link = "log"))}, warning = function(w) {cat("CONVERGENCE WARNING in Attempt 1:\n", conditionMessage(w), "\n"); return(NULL)}, error = function(e) {cat("CONVERGENCE ERROR in Attempt 1:\n", conditionMessage(e), "\n"); return(NULL)})
   if (is.null(modelo_conc_tentativa1)) {equacao_conc_2 <- "glmmTMB(concentracao_real ~ wave + grupo_analise_dep + (1 | subjectid), data = nanosight_intersect_ev_pequena_long, family = nbinom1(link = log)"; cat("\nAttempt 2: Negative Binomial GLMM (main effects only)...\n", "equacao: ", equacao_conc_2, "\n", "\n"); modelo_conc_tentativa2 <- tryCatch({glmmTMB(concentracao_real ~ wave + grupo_analise_dep + (1 | subjectid), data = nanosight_intersect_ev_pequena_long, family = nbinom1(link = "log"))}, warning = function(w) {cat("CONVERGENCE WARNING in Attempt 2:\n", conditionMessage(w), "\n"); return(NULL)}, error = function(e) {cat("CONVERGENCE ERROR in Attempt 2:\n", conditionMessage(e), "\n"); return(NULL)})}
-  if(is.null(modelo_conc_tentativa1) && is.null(modelo_conc_tentativa2)) {equacao_conc_3 <- "glmmTMB(concentracao_real ~ wave + grupo_analise_dep, data = nanosight_intersect_ev_pequena_long, family = nbinom1(link = log)"; cat("\nBoth mixed models failed. Selecting final model: GLM with main effects only.\n", "equacao: ", equacao_conc_3,"\n", "\n"); modelo_conc <- glmmTMB(concentracao_real ~ wave + grupo_analise_dep, data = nanosight_intersect_ev_pequena_long, family = nbinom1(link = "log"), dispformula = ~ grupo_analise_dep)}
+  if(is.null(modelo_conc_tentativa1) && is.null(modelo_conc_tentativa2)) {equacao_conc_3 <- "glmmTMB(concentracao_real ~ wave + grupo_analise_dep, data = nanosight_intersect_ev_pequena_long, family = nbinom1(link = log)"; cat("\nBoth mixed models failed. Selecting final model: GLM with main effects only.\n", "equacao: ", equacao_conc_3,"\n", "\n"); modelo_conc <- glmmTMB(concentracao_real ~ wave + grupo_analise_dep, data = nanosight_intersect_ev_pequena_long, family = nbinom1(link = "log"))}
   resultados_finais_aic_bic <- rbind(resultados_finais_aic_bic, data.frame(Variable = "Concentration", Model = "Negative Binomial (GLM)", AIC = AIC(modelo_conc), BIC = BIC(modelo_conc)))
   cat("\n--- 2.2. ANOVA Table (Type II) for Concentration ---\n")
   anova_conc <- Anova(modelo_conc, type = "II"); df_anova_conc <- as.data.frame(anova_conc); df_anova_conc$Significance <- ifelse(df_anova_conc$`Pr(>Chisq)` < alfa, "Significant", "Not Significant"); print(df_anova_conc); write.csv(df_anova_conc, paste0("analysis_results/table_anova_concentration_",  ".csv"))
@@ -154,7 +154,7 @@ cat("\n\n=========================================================\n"); cat("  A
   cat("VIF:\n"); print(vif_df_conc); write.csv(vif_df_conc, paste0("analysis_results/",  "table_vif_concentration_",  ".csv"), row.names = FALSE); cat("\nICC:\nNot applicable (GLM without random effects).\n")
   cat("\n--- 2.5. DHARMa Residual Diagnostics (Concentration) ---\n")
   residuos_conc <- simulateResiduals(fittedModel = modelo_conc); tabela_diag_conc <- criar_tabela_diagnostico_dharma_qq(residuos_conc)
-  png(paste0("analysis_results/",  "/plot_diagnostics_concentration_",  ".png"), width = 3000, height = 1000, res = 300); par(mfrow = c(1, 2), mar = c(4, 4, 3, 1) + 0.1, oma = c(0, 0, 1, 0), cex = 1); plotQQunif(residuos_conc, main = "A) QQ Plot - Concentration", testUniformity = FALSE, testDispersion = FALSE, testOutliers = FALSE); plotResiduals(residuos_conc, main = "B) Residuals vs. Predicted - Concentration"); dev.off()
+  png(paste0("analysis_results/",  "plot_diagnostics_concentration_",  ".png"), width = 3000, height = 1000, res = 300); par(mfrow = c(1, 2), mar = c(4, 4, 3, 1) + 0.1, oma = c(0, 0, 1, 0), cex = 1); plotQQunif(residuos_conc, main = "A) QQ Plot - Concentration", testUniformity = FALSE, testDispersion = FALSE, testOutliers = FALSE); plotResiduals(residuos_conc, main = "B) Residuals vs. Predicted - Concentration"); dev.off()
   print(tabela_diag_conc); write.csv(tabela_diag_conc, paste0("analysis_results/",  "table_diagnostics_dharma_concentration_",  ".csv"), row.names = FALSE)
   # MODEL 3: EVs percentages
   cat("\n\n======================================================================\n"); cat("  ANALYSIS 3: PERCENTAGE OF SMALL EVs (p90_porcentagem)\n"); cat("======================================================================\n\n")
@@ -185,7 +185,7 @@ cat("\n\n=========================================================\n"); cat("  A
     cat("\nICC:\n"); print(icc_perc)
     cat("\n--- 3.5. DHARMa Residual Diagnostics (Percentage) ---\n")
     residuos_perc <- simulateResiduals(fittedModel = modelo_perc); tabela_diag_perc <- criar_tabela_diagnostico_dharma_qq(residuos_perc)
-    png(paste0("analysis_results/",  "/plot_diagnostics_dharma_percentage_",  ".png"), width = 3000, height = 1000, res = 300); par(mfrow = c(1, 2), mar = c(4, 4, 3, 1) + 0.1, oma = c(0, 0, 1, 0), cex = 1); plotQQunif(residuos_perc, main = paste0("A) QQ Plot - Percentage ", tag), testUniformity = FALSE, testDispersion = FALSE, testOutliers = FALSE); plotResiduals(residuos_perc, main = paste0("B) Residuals vs. Predicted - Percentage", tag)); dev.off()
+    png(paste0("analysis_results/",  "plot_diagnostics_dharma_percentage_",  ".png"), width = 3000, height = 1000, res = 300); par(mfrow = c(1, 2), mar = c(4, 4, 3, 1) + 0.1, oma = c(0, 0, 1, 0), cex = 1); plotQQunif(residuos_perc, main = paste0("A) QQ Plot - Percentage "), testUniformity = FALSE, testDispersion = FALSE, testOutliers = FALSE); plotResiduals(residuos_perc, main = paste0("B) Residuals vs. Predicted - Percentage")); dev.off()
     print(tabela_diag_perc); write.csv(tabela_diag_perc, paste0("analysis_results/",  "table_diagnostics_dharma_percentage_",  ".csv"), row.names = FALSE)
   # AIC/BIC
   cat("\n\n=========================================================\n"); cat("  SUMMARY TABLE: AIC/BIC OF FINAL MODELS\n"); cat("=========================================================\n\n")
@@ -196,5 +196,6 @@ cat("\n\n=========================================================\n"); cat("  A
   cat("\n\n### FIM DO LOG DE ANÁLISE ###\n")
   sink() 
 })
+
 
 
