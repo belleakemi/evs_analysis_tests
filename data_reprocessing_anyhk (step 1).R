@@ -23,23 +23,23 @@ nanosight_plus_sampleinfo_anyhk <- nanosight_plus_sampleinfo_anyhk %>%
   filter(grupo_analise_anyhk != "Remitted")
 print(table(nanosight_plus_sampleinfo_anyhk$grupo_analise_anyhk))
 ##Retirando outliers
-nanosight_plus_sampleinfo_anyhk$zscore_mean <- scale(nanosight_plus_sampleinfo_anyhk$tamanho_mean_average)
+nanosight_plus_sampleinfo_anyhk$zscore_mode <- scale(nanosight_plus_sampleinfo_anyhk$tamanho_mode_average)
 nanosight_plus_sampleinfo_anyhk$zscore_porcentagem <- scale(nanosight_plus_sampleinfo_anyhk$EV_pequenas_porcentagem)
 nanosight_plus_sampleinfo_anyhk$zscore_concentracao <- scale(nanosight_plus_sampleinfo_anyhk$concentracao_real)
 nanosight_plus_sampleinfo_anyhk$zscore_conc_nan <- scale(nanosight_plus_sampleinfo_anyhk$concentracao_average)
-nanosight_plus_sampleinfo_anyhk_sem_outliers_mean <- nanosight_plus_sampleinfo_anyhk[nanosight_plus_sampleinfo_anyhk$zscore_mean >= -3.0 & nanosight_plus_sampleinfo_anyhk$zscore_mean <= 3.0, ]
+nanosight_plus_sampleinfo_anyhk_sem_outliers_mode <- nanosight_plus_sampleinfo_anyhk[nanosight_plus_sampleinfo_anyhk$zscore_mode >= -3.0 & nanosight_plus_sampleinfo_anyhk$zscore_mode <= 3.0, ]
 nanosight_plus_sampleinfo_anyhk_sem_outliers_porcentagem <- nanosight_plus_sampleinfo_anyhk[nanosight_plus_sampleinfo_anyhk$zscore_porcentagem >= -3.0 & nanosight_plus_sampleinfo_anyhk$zscore_porcentagem <= 3.0, ]
 nanosight_plus_sampleinfo_anyhk_sem_outliers_concentracao <- nanosight_plus_sampleinfo_anyhk[nanosight_plus_sampleinfo_anyhk$zscore_concentracao >= -3.0 & nanosight_plus_sampleinfo_anyhk$zscore_concentracao <= 3.0, ]
 nanosight_plus_sampleinfo_anyhk_sem_outliers_conc_nan <- nanosight_plus_sampleinfo_anyhk[nanosight_plus_sampleinfo_anyhk$zscore_conc_nan >= -3.0 & nanosight_plus_sampleinfo_anyhk$zscore_conc_nan <= 3.0, ]
-nanosight_plus_sampleinfo_anyhk_sem_outliers_mean_concentracao <- semi_join(nanosight_plus_sampleinfo_anyhk_sem_outliers_mean, nanosight_plus_sampleinfo_anyhk_sem_outliers_concentracao, by = "id_sample")
+nanosight_plus_sampleinfo_anyhk_sem_outliers_mode_concentracao <- semi_join(nanosight_plus_sampleinfo_anyhk_sem_outliers_mode, nanosight_plus_sampleinfo_anyhk_sem_outliers_concentracao, by = "id_sample")
 nanosight_plus_sampleinfo_anyhk_sem_outliers_porcentagem_concentracao <- semi_join(nanosight_plus_sampleinfo_anyhk_sem_outliers_porcentagem, nanosight_plus_sampleinfo_anyhk_sem_outliers_concentracao, by = ("id_sample"))
-nanosight_plus_sampleinfo_anyhk_sem_outliers_mean_porcentagem <- semi_join(nanosight_plus_sampleinfo_anyhk_sem_outliers_mean, nanosight_plus_sampleinfo_anyhk_sem_outliers_porcentagem, by = "id_sample")
-nanosight_intersect_anyhk <- semi_join(nanosight_plus_sampleinfo_anyhk_sem_outliers_mean_concentracao, nanosight_plus_sampleinfo_anyhk_sem_outliers_porcentagem, by = ("id_sample"))
-nanosight_outliers_anyhk <- anti_join(nanosight_plus_sampleinfo_anyhk, nanosight_intersect_anyhk, by = "id_sample")
+nanosight_plus_sampleinfo_anyhk_sem_outliers_mode_porcentagem <- semi_join(nanosight_plus_sampleinfo_anyhk_sem_outliers_mode, nanosight_plus_sampleinfo_anyhk_sem_outliers_porcentagem, by = "id_sample")
+nanosight_intersect_anyhk_mode <- semi_join(nanosight_plus_sampleinfo_anyhk_sem_outliers_mode_concentracao, nanosight_plus_sampleinfo_anyhk_sem_outliers_porcentagem, by = ("id_sample"))
+nanosight_outliers_anyhk_mode <- anti_join(nanosight_plus_sampleinfo_anyhk, nanosight_intersect_anyhk_mode, by = "id_sample")
 
 ##Tabela só com w1 e só w2
-nanosight_w1_anyhk <- subset(nanosight_intersect_anyhk, wave == "t1")
-nanosight_w2_anyhk <- subset(nanosight_intersect_anyhk, wave == "t2")
-nanosight_intersect_pares_anyhk <- semi_join(nanosight_w1_anyhk, nanosight_w2_anyhk, by = ("subjectid"))
+nanosight_w1_anyhk_mode <- subset(nanosight_intersect_anyhk_mode, wave == "t1")
+nanosight_w2_anyhk_mode <- subset(nanosight_intersect_anyhk_mode, wave == "t2")
+nanosight_intersect_pares_anyhk_mode <- semi_join(nanosight_w1_anyhk_mode, nanosight_w2_anyhk_mode, by = ("subjectid"))
 
 
